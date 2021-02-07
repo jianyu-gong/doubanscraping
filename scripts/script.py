@@ -3,7 +3,7 @@ import requests
 
 def readWebData(page, topicNum, cookie):
     header={
-    "Cookie": Cookie,
+    "Cookie": cookie,
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36 Edg/88.0.705.63"
     }
     url = "https://www.douban.com/group/topic/"+ topicNum + "/?start=" + str(page)
