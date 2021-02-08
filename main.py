@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 import numpy as np
 from bs4 import BeautifulSoup
-from scripts.script import readWebData, createInfoList
+from scripts.script import readWebData, createCommentInfoList
 
 Cookie =  """
           """
@@ -17,8 +17,6 @@ replyIdList = []
 replyIdAltList = []
 commentList = []
 timeList = []
-topicNumList = []
-
 
 for topicNum in topicList:
     page = 0
@@ -27,7 +25,7 @@ for topicNum in topicList:
         data = readWebData(page, topicNum, Cookie)
         soup = BeautifulSoup(data, 'html.parser')
         webInfo = soup.find_all('li', class_='clearfix comment-item reply-item')
-        replyIdList, replyIdListAltList, commentList, timeList, topicNumList = createInfoList(webInfo, replyIdList, replyIdAltList, commentList, timeList,topicNum, topicNumList)
+        replyIdList, replyIdListAltList, commentList, timeList, topicNumList = createCommentInfoList(webInfo, topicNum, replyIdList, replyIdAltList, commentList, timeList)
         commentCount = len(soup.find_all('li', class_='clearfix comment-item reply-item'))
         page+=100
 

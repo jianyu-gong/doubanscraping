@@ -12,7 +12,8 @@ def readWebData(page, topicNum, cookie):
     return data
 
 
-def createInfoList(webInfo, replyIdList, replyIdAltList, commentList, timeList, topicNum, topicNumList):
+def createCommentInfoList(webInfo, topicNum, replyIdList, replyIdAltList, commentList, timeList):
+    topicNumList = []
     for reply in webInfo:
         replyId = reply["data-author-id"]
         replyIdAlt = list(reply.find("h4"))[1].get_text()
