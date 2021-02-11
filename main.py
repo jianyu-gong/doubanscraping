@@ -2,40 +2,22 @@ import requests
 import pandas as pd
 import numpy as np
 from bs4 import BeautifulSoup
-from scripts.script import readWebData, createCommentInfoList
-
-Cookie =  """
-          """
-
-#topicList = ["210473494", "210307098", "209967593", "207670339", "205580605"] 人才组
-#topicList = ["207768078", "207132337", "204671016", "202811686"] #彩虹组
-topicList = ["203676948", "204807786"] # 草原
-#topicList = ["210425155", "210131057", "210045682", "209681866", "209683935", "210036469", "208660469"]
-#topicList = ["210047900", "210660661"]
-
-replyIdList = []
-replyIdAltList = []
-commentList = []
-timeList = []
-
-for topicNum in topicList:
-    page = 0
-    commentCount = 1
-    while commentCount != 0:
-        data = readWebData(page, topicNum, Cookie)
-        soup = BeautifulSoup(data, 'html.parser')
-        webInfo = soup.find_all('li', class_='clearfix comment-item reply-item')
-        replyIdList, replyIdListAltList, commentList, timeList, topicNumList = createCommentInfoList(webInfo, topicNum, replyIdList, replyIdAltList, commentList, timeList)
-        commentCount = len(soup.find_all('li', class_='clearfix comment-item reply-item'))
-        page+=100
+from scripts.script import readWebData, createCommentInfoList, createMemInfoList, processUserId
+from time import sleep
 
 
-commentDf = pd.DataFrame(list(zip(topicNumList, replyIdList, replyIdListAltList, commentList, timeList)), 
-               columns =['TopicNum','UserId', 'UserAltName', 'Comment', 'TimePublished'])
+cookie =  """bid=M8d5os6pdMc; __utmc=30149280; __utmz=30149280.1612629628.1.1.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not provided); push_doumail_num=0; __utmv=30149280.23180; ct=y; douban-profile-remind=1; ll="108120"; dbcl2="231803702:BHiciIvzZnI"; ck=q-BM; __yadk_uid=ymcyjW0WJCF8VEIKnvmnB80XfOSZfLjZ; push_noty_num=0; ap_v=0,6.0; _pk_ref.100001.8cb4=["","",1612995689,"https://www.google.com/"]; _pk_ses.100001.8cb4=*; __utma=30149280.40126775.1612629628.1612986153.1612995690.15; __utmt=1; _pk_id.100001.8cb4=a851698bf89c60d1.1612629627.15.1613000006.1612986711.; __utmb=30149280.103.5.1613000003662"""
 
-commentDf = commentDf.drop_duplicates()
-userIdDf = commentDf.drop_duplicates(['UserId','UserAltName'])[['UserId', 'UserAltName']]
-countDf = commentDf.groupby(['UserId']).count().sort_values(['Comment'], ascending=False).reset_index()
+memberIdAltList = []
+memberIdUrlList = []
+entityNum = '634189'
 
-countSummaryDf = pd.merge(countDf, userIdDf, on="UserId")[["UserId", "UserAltName_y", "Comment"]]
-countSummaryDf = countSummaryDf.rename(columns={"UserId": "用户名", "UserAltName_y": "用户昵称", "Comment": "评论数"})
+for page in range(0, 1000, 35):
+    data = readWebData(page, entityNum, cookie, info="member")
+    soup = BeautifulSoup(data, 'html.parser')
+    memberInfo = soup.find_all('div', class_='name')
+    memberIdUrlList = createMemInfoList(memberInfo, memberIdUrlList)
+    sleep(2.0)
+
+memberDf = processUserId(memberIdUrlList)
+memberDf.to_csv('人才组用户名单.csv', index=False)
