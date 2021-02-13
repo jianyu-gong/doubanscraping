@@ -1,5 +1,7 @@
 import requests
 import pandas as pd
+import mysql.connector
+from mysql.connector import errorcode
 
 def readWebData(page, entityNum, cookie, info):
     header={
@@ -40,16 +42,16 @@ def statusCode(response):
         print('抓取失败.')
 
 
-def createMemInfoList(memberInfo, memberIdUrlList):
+def createMemInfoList(memberInfo, cursor, conn):
     for member in memberInfo:
         memberIdAlt = member.find("a", class_='').get_text()
         memberIdUrl = member.find("a", class_='')['href']
         print('Member Name: %s' % memberIdAlt)
         print('Member URL: %s' % memberIdUrl)
 
-        memberIdUrlList.append(memberIdUrl)
-
-    return memberIdUrlList
+        sql = "INSERT IGNORE INTO user (userID, userAlt) VALUES (%s, %s)"
+        val = (memberIdUrl[30:-1], memberIdAlt)
+        cursor.execute(sql, val)
 
 
 def processUserId(memberIdUrlList):
