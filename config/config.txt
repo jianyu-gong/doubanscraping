@@ -2,3 +2,5 @@
 password = 
 user = 
 database =
+cookie =
+host = 
