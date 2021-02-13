@@ -132,3 +132,7 @@ sqlite3
 sql
 *.csv
 *.ipynb
+
+# Configration
+config/config.txt
+config/config.txt
